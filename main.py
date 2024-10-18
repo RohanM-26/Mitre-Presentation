@@ -7,14 +7,14 @@ FLASK_ENV = 'development'
 app.secret_key = "CHANGE ME"
 import random
 
-
+# Database connection
 def get_connection():
     connection = getattr(g, '_database', None)
     if connection is None:
         connection = g._database = sqlite3.connect("database.db")
         connection.row_factory = sqlite3.Row
     return connection
-
+#retrieve courses from catalog, using a LJOIN with course - course num and prereq- course num
 def get_course_catalog():
     cursor = get_connection().cursor()
     cursor.execute("SELECT * FROM course LEFT JOIN prerequisite ON course.course_num = prerequisite.course_num")
@@ -32,6 +32,7 @@ def get_course_catalog():
     #--------------------------------------------------------#
     return course_catalog
 
+#create user acct in database, updating it dynammically
 def create_account(first_name, last_name, email, username, password, address):
     cursor = get_connection().cursor()
     cursor.execute('INSERT INTO User (username, password, fname, lname) VALUES (?, ?, ?, ?)')
@@ -39,7 +40,7 @@ def create_account(first_name, last_name, email, username, password, address):
     cursor.close()
     return True
 
-
+#handles login logic
 @app.route('/', methods = ['GET', 'POST'])
 def login():
     if (request.method == 'POST'):
@@ -47,7 +48,7 @@ def login():
         password = request.form['password']
 
         cursor = get_connection().cursor()
-
+        #query through database to see if valid
         cursor.execute("SELECT * FROM user_credentials WHERE user = ? AND pass = ?", (username, password,))
         user_credentials = cursor.fetchone()
         if (user_credentials):
@@ -88,6 +89,7 @@ def login():
             return render_template('login.html', message = message)
     return render_template('login.html', message = 0)
 
+#updating instance variables
 @app.route('/create', methods = ['GET','POST'])
 def create():
     if request.method == 'POST':
@@ -101,10 +103,11 @@ def create():
         create_account(first_name, last_name, email, username, password, address)
     return render_template('create.html', user_id = session['user_id'], username = session['username'], first_name = session['first_name'], last_name = session['last_name'], access = session['access'], email = session['email'], address = session ['address'])
 
-
+#signup
 @app.route('/signup', methods = ['GET','POST'])
 def signup():
     if(request.method == 'POST'):
+        #check if user exists in database already
         username = request.form['username']
 
         cursor = get_connection().cursor()
@@ -113,23 +116,28 @@ def signup():
         user_credentials = cursor.fetchone()
 
         if(user_credentials):
+             # if username exists, show a message to use a different one
             message = f"User with username {username} already exists. Please login or try a new username."
             return render_template('signup.html', message = message, status = False)
         else:
+            #collect data to make instance variables for the new user
             first_name = request.form['first_name']
             last_name = request.form['last_name']
             email = request.form['email']
             password = request.form['password']
             address = request.form['address']
+            #validate fields filled
             if(not first_name.strip() or not last_name.strip() or not email.strip() or not username.strip() or not password.strip() or not address.strip()):
                 message = "Please fill in all fields."
                 return render_template("signup.html", message = message, status = False)
             else:
+                # Insert user into both user_credentials and user_information tables
                 cursor = get_connection().cursor()
                 cursor.execute("SELECT count(first_name) FROM user_information")
                 user_id = cursor.fetchone()[0]
                 cursor.execute("INSERT INTO user_credentials VALUES (?, ?, ?)", (username, password, user_id,))
                 cursor.execute("INSERT INTO user_information VALUES (?, ?, ?, ?, ?, ?)", (first_name, last_name, 3, email, address, user_id))   
+                #gen unique uid for grad sutdents
                 new = True
                 while new:
                     random_number = random.randint(0, 99999999)
@@ -147,19 +155,21 @@ def signup():
                 return render_template("login.html", message = message, status = True)
     return render_template('signup.html')
 
-
+#home page
 @app.route('/home', methods = ['GET', 'POST'])
 def home():
+    #display home IF user is valid/logged in
     if 'username' in session:
         return render_template('home.html', user_id = session['user_id'], username = session['username'], first_name = session['first_name'], last_name = session['last_name'], access = session['access'], email = session['email'], address = session ['address'])
     else:
         return render_template('signup.html')
-
+#course catalog page route
 @app.route('/course_catalog', methods = ['GET', 'POST'])
 def course_catalog():
+    #fetch course catalog
     course_catalog = list(get_course_catalog())
     return render_template('course_catalog.html', course_catalog = course_catalog, first_name = session['first_name'], last_name = session['last_name'], access = session['access'], len = len(course_catalog))
-
+#Route to display courses taken and requirements for logged-in students
 @app.route('/taken_course_and_requirements', methods = ['GET', 'POST'])
 def taken_course_and_requirements():
     cursor = get_connection().cursor()
@@ -167,6 +177,7 @@ def taken_course_and_requirements():
     taken_courses = cursor.fetchall()
     return render_template('taken_course_and_requirements.html', first_name = session['first_name'], last_name = session['last_name'], access = session['access'], type_of_program = session['type_of_program'], taken_courses = taken_courses)
 
+#forms required for application to graduate
 @app.route('/forms', methods = ['GET', 'POST'])
 def forms():
     course_catalog = list(get_course_catalog())
@@ -181,6 +192,7 @@ def forms():
             message = f"Please do not submit an empty form!"
             return render_template('forms.html', course_catalog = course_catalog, first_name = session['first_name'], last_name = session['last_name'], access = session['access'], len = len(course_catalog), message = message, type_of_program = session['type_of_program'])
         cursor = get_connection().cursor()
+        #make the form you submitted with values selected
         cursor.execute("INSERT INTO forms (submitted_university_id) VALUES (?)", (session['university_id'],))
         get_connection().commit()
         cursor.execute("SELECT form_id FROM forms WHERE forms.submitted_university_id = ? ORDER BY form_id DESC LIMIT 1", (session['university_id'],))
@@ -188,6 +200,7 @@ def forms():
         for course in form_one:
             cursor.execute("INSERT INTO forms_classes (form_id, university_id, dept, course_num) VALUES (?, ?, ?, ?)", (form_id, session['university_id'], course[0], course[1]))
             get_connection().commit()
+        #changes based on MS or PHD program with thesis
         if(session['type_of_program'] == 'PhD'):
             if(request.form['large-text']):
                 thesis = request.form['large-text']
@@ -280,7 +293,7 @@ def assign():
     cursor.execute("SELECT * FROM user_information ORDER BY type DESC")
     information = cursor.fetchall()
     return render_template('assign.html', information = information, first_name = session['first_name'], last_name = session['last_name'], access = session['access'], error = error, person = user_id)
-
+#check student profile including alum update with existing info
 @app.route('/studentprofile/<id>', methods = ['GET', 'POST'])
 def preview(id):
     cursor = get_connection().cursor()
@@ -300,7 +313,7 @@ def preview(id):
     type_of_program = student['type_of_program']
     area_of_study = student['area_of_study']
     return render_template('profile.html', first_name = first_name, last_name = last_name, access = access, email = email, address = address, university_id = university_id, gpa = gpa, type_of_program = type_of_program, area_of_study = area_of_study, taken_courses = taken_courses, preview = 1, stud_access = stud_access, user_id = user_id)
-
+#populate with advisees from adivsors perspective based on access level
 @app.route('/list_of_advisees', methods=['GET', 'POST'])
 def list_of_advisees():
     cursor = get_connection().cursor()
@@ -323,7 +336,7 @@ def list_of_advisees():
             graduation_application = cursor.fetchone()
             return render_template('list_of_advisees.html', first_name = session['first_name'], last_name = session['last_name'], access = session['access'], list_of_advisees = list_of_advisees, selected_student = selected_student, taken_courses = taken_courses, latest_form = latest_form, graduation_application = graduation_application)
     return render_template('list_of_advisees.html', first_name = session['first_name'], last_name = session['last_name'], access = session['access'], list_of_advisees = list_of_advisees)
-
+#review forms for grad secretary
 @app.route('/review_forms',methods=['GET', 'POST'])
 def review_forms():
     thesis = None
@@ -368,6 +381,7 @@ def review_forms():
 
 
 @app.route('/profile', methods = ['GET', 'POST'])
+#populate profile page
 def profile():
     thesis = None
     form_id = None
@@ -410,6 +424,7 @@ def profile():
         taken_courses = cursor.fetchall()
     if(request.method == 'POST'):
         if(logout):
+            #llogging out
             [session.pop(key) for key in list(session.keys())]
             session.clear()
             message = f"You have logged out successfully."
@@ -433,6 +448,7 @@ def profile():
             if(not courses_on_form_set.issubset(courses_taken_set)):
                 message = f"You have not taken all the courses listed on your form 1!"
                 return render_template('profile.html', first_name = session['first_name'], last_name = session['last_name'], access = session['access'], email = session['email'], address = session['address'], university_id = session['university_id'], gpa = session['gpa'], type_of_program = session['type_of_program'], area_of_study = session['area_of_study'], taken_courses = taken_courses, message = message, status = False, form = form, cleared = cleared, form_id = form_id, forms_classes = forms_classes, thesis = thesis)
+            #same as PHD but for MS and its requirements
             if(session['type_of_program'] == 'MS'):
                 cursor.execute("SELECT MS_required_courses.dept, MS_required_courses.course_num FROM MS_required_courses")
                 required_courses = cursor.fetchall()
@@ -470,6 +486,7 @@ def profile():
                 cursor.execute("UPDATE graduate_student SET cleared = ? WHERE university_id = ?", (1, session['university_id']))    
                 get_connection().commit()
                 return render_template('profile.html', first_name = session['first_name'], last_name = session['last_name'], access = session['access'], email = session['email'], address = session['address'], university_id = session['university_id'], gpa = session['gpa'], type_of_program = session['type_of_program'], area_of_study = session['area_of_study'], taken_courses = taken_courses, message = message, status = False, form = form, cleared = cleared, form_id = form_id, forms_classes = forms_classes, thesis = thesis)
+            #check if PHD student valid to graduate, updating as you iterate through all the values selected in form
             elif(session['type_of_program'] == 'PhD'):
                 cursor.execute("SELECT * FROM PhD_requirements")
                 PhD_requirements = cursor.fetchone()
