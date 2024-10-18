@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <title>Create New User</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        * {box-sizing: border-box;}
+        .topnav{
+            background-color: #333;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .topnav a{
+            color: #f2f2f2;
+            text-align: center;
+            padding: 18px 20px;
+            text-decoration: none;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            height: 72px;
+            border: 1px solid transparent;
+            flex-grow: 1;
+        }
+        .topnav a img{
+            height: 40px;
+            width: auto; 
+            margin-right: 3px;
+        }
+        .topnav a:hover{
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: 72px;
+        }
+        .topnav a.active{
+            background-color: #04AA6D;
+            color: white;
+            height: 72px;
+            flex-grow: 1;
+            justify-content: center;
+            text-align: center;
+        }
+        .topnav a.centered{
+            flex-grow: 1;
+            justify-content: center;
+            text-align: center;
+        }
+        .center-table{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        table{
+            border-collapse: collapse;
+            width: 80%;
+            margin-top: 20px;
+        }
+    
+
+        th, td{
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th{
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even){
+            background-color: #f2f2f2;
+        }
+
+        tr:hover{
+            background-color: #ddd;
+        }
+
+        th{
+            background-color: #4CAF50;
+            color: white;
+        }
+        .title{
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        #good_login_message{
+            text-align: center;
+            background-color: rgb(150, 255, 169); 
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        #bad_login_message{
+            text-align: center;
+            background-color: rgb(255, 150, 150); 
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        #sign_up_heading{
+            font-size: 64px;
+            margin-bottom: 100px;
+            text-align: center;
+        }
+        #signup_link{
+            margin-top: 15px;
+            text-align: center;
+        }
+        #signup_link a{
+            color: #4caf50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        #title{
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 80px;
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        form{
+            text-align: center;
+        }
+        label{
+            display: block;
+            margin-bottom: 10px;
+        }
+        input{
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        input[type="submit"]{
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+        }
+        body{
+            margin: 0px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topnav">
+        <a class="active" href="/profile">
+            Hello {{ first_name }} {{ last_name[0] }}.</a>
+        </a>
+        {% if access == 0 %}
+            <a class="centered" href="/assign">Assign Users</a>
+            <a class="centered" href="/create">Create Accounts</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+            <a class="centered" href="/students">List of Students</a>
+            <a class="centered" href="/advisors">List of Advisors</a>
+            <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+        {% elif access == 1 %}
+            <a class="centered" href="/students">List of Students</a>
+            <a class="centered" href="/advisors">List of Advisors</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+        {% elif access == 2 %}
+            <a class="centered" href="{{ url_for('list_of_advisees')}}">List of Advisees'</a>
+            <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+        {% elif access == 3 %}
+            <a class="centered" href="{{ url_for('taken_course_and_requirements')}}">Taken Courses and Requirements</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+            <a class="centered" href="{{ url_for('forms')}}">Submit Forms</a>
+        {% else %}
+
+        {% endif %}
+            <a class="centered" href="{{ url_for('profile')}}">Profile</a>
+    </div>
+        <div class="title">
+            <h1>Create New User</h1>
+        </div>
+    <div id="sign_up_heading">Sign Up</div>
+    {% if message %}
+        <div id="sign_up_message">{{ message }}</div>
+    {% endif %}
+    <form action="/signup" method='POST'>
+        <label for="first_name">First Name</label>
+        <input type="text" name="first_name" placeholder="Enter your first name">
+
+        <label for="last_name">Last Name</label>
+        <input type="text" name="last_name" placeholder="Enter your last name">
+
+        <label for="email">Email</label>
+        <input type="email" name="email" placeholder="Enter your email">
+
+        <label for="username">Username</label>
+        <input type="text" name="username" placeholder="Enter your username">
+
+        <div style="margin-bottom: 15px;">
+            <label for="password">Password</label>
+            <input type="password" name="password" placeholder="Enter your password" id="password">
+
+            <input type="checkbox" onclick="togglePasswordVisibility()"> Show password
+        </div>
+        <br></br>
+        <label for="address">Address</label>
+        <input type="text" name="address" placeholder="Enter your address">
+
+        <input type="submit" name="submit" value="Sign Up">
+    </form>
+    <div id="login_link">Already have an account? <a href="/">Login</a></div>
+    <br></br>
+    <br></br>
+</body>
+</html>
+<script>
+    function togglePasswordVisibility(){
+        var password = document.getElementById("password");
+        if(password.type === "password"){
+            password.type = "text"
+        }
+        else{
+            password.type = "password"
+        }
+    }
+</script>

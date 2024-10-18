@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Review Forms </title>
+    <style>
+        * {box-sizing: border-box;}
+        body {
+            margin: 0;
+        }
+        .topnav{
+            background-color: #333;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .topnav a{
+            color: #f2f2f2;
+            text-align: center;
+            padding: 18px 20px;
+            text-decoration: none;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            height: 72px;
+            border: 1px solid transparent;
+            flex-grow: 1;
+        }
+        .topnav a img{
+            height: 40px;
+            width: auto; 
+            margin-right: 3px;
+        }
+        .topnav a:hover{
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: 72px;
+        }
+        .topnav a.active{
+            background-color: #04AA6D;
+            color: white;
+            height: 72px;
+            flex-grow: 1;
+            justify-content: center;
+            text-align: center;
+        }
+        .topnav a.centered{
+            flex-grow: 1;
+            justify-content: center;
+            text-align: center;
+        }
+        .center-table{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        table{
+            border-collapse: collapse;
+            width: 80%;
+            margin-top: 20px;
+        }
+
+        th, td{
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th{
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even){
+            background-color: #f2f2f2;
+        }
+
+        tr:hover{
+            background-color: #ddd;
+        }
+
+        th{
+            background-color: #4CAF50;
+            color: white;
+        }
+        .title{
+            text-align: center;
+            margin-top: 20px;
+        }
+        .forms-form-container{
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .forms-form-box{
+            width: 50%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: center;
+            
+        }
+        .forms-form-box h2{
+            margin-top: 0;
+        }
+        .forms-form-box p {
+            margin: 10px 0;
+        }
+        
+        .forms-info-container{
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .forms-info-box{
+            width: 50%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: center;
+            
+        }
+        .forms-info-box h2{
+            margin-top: 0;
+        }
+        .forms-info-box p {
+            margin: 10px 0;
+        }
+        .approve-form-container{
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .approve-form-box{
+            width: 50%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: center;
+            
+        }
+        .approve-form-box h2{
+            margin-top: 0;
+        }
+        .approve-form-box p {
+            margin: 10px 0;
+        }
+        .approve-button{
+            font-size: 100px;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topnav">
+        <a class="active" href="/profile">
+            Hello {{ first_name }} {{ last_name[0] }}.</a>
+        </a>
+        {% if access == 0 %}
+            <a class="centered" href="/assign">Assign Users</a>
+            <a class="centered" href="/create">Create Accounts</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+            <a class="centered" href="/students">List of Students</a>
+            <a class="centered" href="/advisors">List of Advisors</a>
+            <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+        {% elif access == 1 %}
+            <a class="centered" href="/students">List of Students</a>
+            <a class="centered" href="/advisors">List of Advisors</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+        {% elif access == 2 %}
+            <a class="centered" href="{{ url_for('list_of_advisees')}}">List of Advisees'</a>
+            <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+        {% elif access == 3 %}
+            <a class="centered" href="{{ url_for('taken_course_and_requirements')}}">Taken Courses and Requirements</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+            <a class="centered" href="{{ url_for('forms')}}">Submit Forms</a>
+        {% else %}
+
+        {% endif %}
+            <a class="centered" href="{{ url_for('profile')}}">Profile</a>
+    </div>
+    <form id="forms-form" action="/review_forms" method="POST">
+        <div class="forms-form-container">
+            <div class="forms-form-box">
+                <h2>Forms List</h2>
+                <select id="forms-dropdown" name="selected_advisee_id">
+                    <option value="">Select Form</option>
+                    {% for form in list_of_forms %}
+                        <option value="{{ form[1] }}">{{ form[10] }} {{ form[11] }} - {{ form[1] }} - 
+                            {% if form[2] == 1 %}
+                                approved form
+                            {% else %}
+                                form awaiting approval
+                            {% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit">View</button>
+            </div>
+        </div>
+    </form>
+    {% if advisee_information %}
+        <form id="approve-form" action="{{ url_for('review_forms', form_id = form[0]) }}" method="POST">
+            <div class="approve-form-container">
+                <div class="approve-form-box">
+                    <h2>{{ advisee_information[7] }} {{ advisee_information[8] }}'s Form 1</h2>
+                    <div class="center-table">
+                        <table>
+                            <thead>
+                                <th> Department </th>
+                                <th> Course Number </th>
+                            </thead>
+                            <tbody>
+                                {% for form_class in forms_classes%}
+                                    <tr>
+                                        <td> {{form_class[2]}} </td> 
+                                        <td> {{form_class[3]}} </td> 
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if advisee_information[3] == 'PhD' %}
+                        <h2>{{ advisee_information[7] }} {{ advisee_information[8] }}'s Thesis</h2>
+                        <textarea rows="4" cols="50" readonly>{{ thesis[1] }}</textarea> <br>
+                    {% endif %}
+                    <button class="approve-button" type="submit" name="approve" value="approve">Approve?</button>
+                </div>
+            </div>
+        </form>
+    {% endif %}
+    {% if message %}
+        <script>
+            function empty_form(message){
+                alert(message)
+            }
+            empty_form("{{message}}")
+        </script>   
+    {% endif %}
+</body>
+

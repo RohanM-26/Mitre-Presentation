@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="style.css">
+    <title>List Of Users</title>
+</head>
+<body>
+    <body>
+        <div class="topnav">
+            <a class="active" href="/profile">
+                Hello {{ first_name }} {{ last_name[0] }}.</a>
+            </a>
+            {% if access == 0 %}
+                <a class="centered" href="/assign">Assign Users</a>
+                <a class="centered" href="/create">Create Accounts</a>
+                <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+                <a class="centered" href="/students">List of Students</a>
+            <a class="centered" href="/advisors">List of Advisors</a>
+            <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+            {% elif access == 1 %}
+                <a class="centered" href="/students">List of Students</a>
+                <a class="centered" href="/advisors">List of Advisors</a>
+                <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+            {% elif access == 2 %}
+                <a class="centered" href="{{ url_for('list_of_advisees')}}">List of Advisees'</a>
+                <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+                <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+            {% elif access == 3 %}
+                <a class="centered" href="{{ url_for('taken_course_and_requirements')}}">Taken Courses and Requirements</a>
+                <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+                <a class="centered" href="{{ url_for('forms')}}">Submit Forms</a>
+            {% else %}
+    
+            {% endif %}
+                <a class="centered" href="{{ url_for('profile')}}">Profile</a>
+        </div>
+    <table>
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user_credential in user_credentials %}
+            <tr>
+                <td>{{ user_credential['user_id'] }}</td>
+                <td>{{ user_credential['user'] }}</td>
+                <td>{{ user_credential['pass'] }}</td>
+                <td>{{ user_credential['first_name'] }}</td>
+                <td>{{ user_credential['last_name'] }}</td>
+                <td>{{ user_credential['access'] }}</td>
+                <td>{{ user_credential['email'] }}</td>
+                <td>{{ user_credential['address'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

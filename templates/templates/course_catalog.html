@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Course Catalog </title>
+    <style>
+        * {box-sizing: border-box;}
+        body {
+            margin: 0;
+        }
+        .topnav{
+            background-color: #333;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .topnav a{
+            color: #f2f2f2;
+            text-align: center;
+            padding: 18px 20px;
+            text-decoration: none;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            height: 72px;
+            border: 1px solid transparent;
+            flex-grow: 1;
+        }
+        .topnav a img{
+            height: 40px;
+            width: auto; 
+            margin-right: 3px;
+        }
+        .topnav a:hover{
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: 72px;
+        }
+        .topnav a.active{
+            background-color: #04AA6D;
+            color: white;
+            height: 72px;
+            flex-grow: 1;
+            justify-content: center;
+            text-align: center;
+        }
+        .topnav a.centered{
+            flex-grow: 1;
+            justify-content: center;
+            text-align: center;
+        }
+        .center-table{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        table{
+            border-collapse: collapse;
+            width: 80%;
+            margin-top: 20px;
+        }
+
+        th, td{
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th{
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even){
+            background-color: #f2f2f2;
+        }
+
+        tr:hover{
+            background-color: #ddd;
+        }
+
+        th{
+            background-color: #4CAF50;
+            color: white;
+        }
+        .title{
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="topnav">
+        <a class="active" href="/profile">
+            Hello {{ first_name }} {{ last_name[0] }}.</a>
+        </a>
+        {% if access == 0 %}
+            <a class="centered" href="/assign">Assign Users</a>
+            <a class="centered" href="/create">Create Accounts</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+            <a class="centered" href="/students">List of Students</a>
+            <a class="centered" href="/advisors">List of Advisors</a>
+            <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+        {% elif access == 1 %}
+            <a class="centered" href="/students">List of Students</a>
+            <a class="centered" href="/advisors">List of Advisors</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+        {% elif access == 2 %}
+            <a class="centered" href="{{ url_for('list_of_advisees')}}">List of Advisees'</a>
+            <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+        {% elif access == 3 %}
+            <a class="centered" href="{{ url_for('taken_course_and_requirements')}}">Taken Courses and Requirements</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+            <a class="centered" href="{{ url_for('forms')}}">Submit Forms</a>
+        {% else %}
+
+        {% endif %}
+            <a class="centered" href="{{ url_for('profile')}}">Profile</a>
+    </div>
+    <div class="title">
+        <h1>Course Catalog</h1>
+    </div>
+    <div class="center-table">
+        <table>
+            <thead>
+                <th> Department </th>
+                <th> Course Number </th>
+                <th> Title </th>
+                <th> Credits </th>
+                <th> Pre-requisite 1 </th>
+                <th> Pre-requisite 2 </th>
+            </thead>
+            <tbody>
+                {% for i in range (0,len) if not course_catalog[i][8] %}
+                    <tr>
+                        <td> {{course_catalog[i][0]}} </td> 
+                        <td> {{course_catalog[i][1]}} </td> 
+                        <td> {{course_catalog[i][2]}} </td> 
+                        <td> {{course_catalog[i][3]}} </td> 
+                        <td> 
+                            {% if course_catalog[i][5] %}
+                                {{ course_catalog[i][4] }} {{ course_catalog[i][5] }}
+                            {% else %}
+                                None
+                            {% endif %}
+                        </td> 
+                        <td> 
+                            {% if i != len - 1 %}
+                                {% if course_catalog[i][0] == course_catalog[i + 1][0] and course_catalog[i][1] == course_catalog[i + 1][1] and course_catalog[i][2] == course_catalog[i + 1][2] %}
+                                    {{ course_catalog[i + 1][4] }} {{ course_catalog[i + 1][5] }}
+                                    {% set skip = True %}
+                                {% else %}
+                                    None
+                                {% endif %}
+                            {% else %}
+                                None
+                            {% endif %}
+                        </td> 
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Advisees </title>
+    <style>
+        * {box-sizing: border-box;}
+        body {
+            margin: 0;
+        }
+        .topnav{
+            background-color: #333;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .topnav a{
+            color: #f2f2f2;
+            text-align: center;
+            padding: 18px 20px;
+            text-decoration: none;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            height: 72px;
+            border: 1px solid transparent;
+            flex-grow: 1;
+        }
+        .topnav a img{
+            height: 40px;
+            width: auto; 
+            margin-right: 3px;
+        }
+        .topnav a:hover{
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: 72px;
+        }
+        .topnav a.active{
+            background-color: #04AA6D;
+            color: white;
+            height: 72px;
+            flex-grow: 1;
+            justify-content: center;
+            text-align: center;
+        }
+        .topnav a.centered{
+            flex-grow: 1;
+            justify-content: center;
+            text-align: center;
+        }
+        .center-table{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        table{
+            border-collapse: collapse;
+            width: 80%;
+            margin-top: 20px;
+        }
+
+        th, td{
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th{
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even){
+            background-color: #f2f2f2;
+        }
+
+        tr:hover{
+            background-color: #ddd;
+        }
+
+        th{
+            background-color: #4CAF50;
+            color: white;
+        }
+        .title{
+            text-align: center;
+            margin-top: 20px;
+        }
+        .advisee-form-container{
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .advisee-form-box{
+            width: 50%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: center;
+            
+        }
+        .advisee-form-box h2{
+            margin-top: 0;
+        }
+        .advisee-form-box p {
+            margin: 10px 0;
+        }
+        
+        .advisee-info-container{
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .advisee-info-box{
+            width: 50%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: center;
+            
+        }
+        .advisee-info-box h2{
+            margin-top: 0;
+        }
+        .advisee-info-box p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="topnav">
+        <a class="active" href="/profile">
+            Hello {{ first_name }} {{ last_name[0] }}.</a>
+        </a>
+        {% if access == 0 %}
+            <a class="centered" href="/assign">Assign Users</a>
+            <a class="centered" href="/create">Create Accounts</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+            <a class="centered" href="/students">List of Students</a>
+            <a class="centered" href="/advisors">List of Advisors</a>
+            <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+        {% elif access == 1 %}
+            <a class="centered" href="/students">List of Students</a>
+            <a class="centered" href="/advisors">List of Advisors</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+        {% elif access == 2 %}
+            <a class="centered" href="{{ url_for('list_of_advisees')}}">List of Advisees'</a>
+            <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+        {% elif access == 3 %}
+            <a class="centered" href="{{ url_for('taken_course_and_requirements')}}">Taken Courses and Requirements</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+            <a class="centered" href="{{ url_for('forms')}}">Submit Forms</a>
+        {% else %}
+
+        {% endif %}
+            <a class="centered" href="{{ url_for('profile')}}">Profile</a>
+    </div>
+    {{list_of_forms}}
+    <form id="advisee-form" action="/list_of_advisees" method="POST">
+        <div class="advisee-form-container">
+            <div class="advisee-form-box">
+                <h2>Advisees' List</h2>
+                <select id="advisee-dropdown" name="selected_advisee_id">
+                    <option value="">Select Advisee</option>
+                    {% for advisee in list_of_advisees %}
+                        <option value="{{ advisee[0] }}">{{ advisee[7] }} {{ advisee[8] }} - {{ advisee[0] }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">View</button>
+            </div>
+        </div>
+    </form>
+    {% if selected_student %}
+        <div class="advisee-info-container">
+            <div class="advisee-info-box">
+                <h2>Advisee {{ selected_student[7] }} {{ selected_student[8] }}'s Information</h2>
+                <p><b>University ID:</b> G{{ selected_student[0] }}</p>
+                <p><b>Email:</b> {{ selected_student[10] }}</p>
+                <p><b>GPA:</b> {{ selected_student[6] }}</p>
+                <p><b>Program:</b> {{ selected_student[3] }}</p>
+                <p><b>Major:</b> {{ selected_student[4] }} </p>
+                <p><b>Form 1 Submission:</b> 
+                {% if latest_form %}
+                    {% if latest_form[2] == 0 %}
+                        Form is awaiting approval.
+                    {% else %}
+                        Form has been approved.
+                    {% endif %}
+                    <a href="{{ url_for('review_forms', selected_student_id =  selected_student[0]) }}"><button type="button">View Form</button></a>
+                {% else %}
+                    Student has not submitted a form.
+                {% endif %}
+                </p>
+                <p><b>Graduation:</b> 
+                    {% if graduation_application %}
+                        {% if graduation_application[2] == 0 %}
+                            Graduation application is awaiting approval.
+                        {% else %}
+                            Graduation application has been approved.
+                        {% endif %}
+                    {% else %}
+                        Student has not applied to graduate.
+                    {% endif %}
+                </p>
+                <div class="title">
+                    <h1>Student's Courses</h1>
+                </div>
+                <div class="center-table">
+                    <table>
+                        <thead>
+                            <th> Department </th>
+                            <th> Course Number </th>
+                            <th> Title </th>
+                            <th> Credits </th>
+                            <th> Semester Taken </th>
+                            <th> Grade </th>
+                        </thead>
+                        <tbody>
+                            {% for course in taken_courses %}
+                                <tr> 
+                                    <td> {{course[1]}} </td> 
+                                    <td> {{course[2]}} </td> 
+                                    <td> {{course[3]}} </td> 
+                                    <td> {{course[4]}} </td> 
+                                    <td> {{course[5]}} </td> 
+                                    <td> {{course[6]}} </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</body>
+

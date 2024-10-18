@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="styles.css">
+<head>
+    <title> View Grades </title>
+</head>
+<body>
+    <p>
+    Grades
+    </p>
+    Name:
+
+    <div class="dropdown">
+        <button class="dropbtn">Dropdown</button>
+        <div class="dropdown-content">
+          <a href="">Link 1</a>
+          <a href="#">Link 2</a>
+          <a href="#">Link 3</a>
+        </div>
+      </div>
+    <!-- <form method="post" action="/viewgrade">
+        <label for="Names">Select name:</label>
+        <select id="quantity" name="quantity" class = "black-text">
+                <option value="0">0</option>
+            {% for i in range(1, productInfo["quantity"] + 1) %}
+                <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select> -->
+
+        <input type="hidden" name="product" value="{{productInfo['name']}}">
+
+        <input type="submit" class = "black-text" value="Add to Cart">
+    </form>
+</body>
+</html>

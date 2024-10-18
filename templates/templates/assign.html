@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Assign Users </title>
+    <style>
+        * {box-sizing: border-box;}
+        body {
+            margin: 0;
+        }
+        .red {
+            color: red;
+        }
+        .green {
+            color: green;
+        }
+        .topnav{
+            background-color: #333;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .topnav a{
+            color: #f2f2f2;
+            text-align: center;
+            padding: 18px 20px;
+            text-decoration: none;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            height: 72px;
+            border: 1px solid transparent;
+            flex-grow: 1;
+        }
+        .topnav a img{
+            height: 40px;
+            width: auto; 
+            margin-right: 3px;
+        }
+        .topnav a:hover{
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: 72px;
+        }
+        .topnav a.active{
+            background-color: #04AA6D;
+            color: white;
+            height: 72px;
+            flex-grow: 1;
+            justify-content: center;
+            text-align: center;
+        }
+        .topnav a.centered{
+            flex-grow: 1;
+            justify-content: center;
+            text-align: center;
+        }
+        .center-table{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        table{
+            border-collapse: collapse;
+            width: 80%;
+            margin-top: 20px;
+        }
+
+        th, td{
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th{
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even){
+            background-color: #f2f2f2;
+        }
+
+        tr:hover{
+            background-color: #ddd;
+        }
+
+        th{
+            background-color: #4CAF50;
+            color: white;
+        }
+        .title{
+            text-align: center;
+            margin-top: 20px;
+        }
+        .user-info-container{
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .user-info-box{
+            width: 50%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: center;
+            
+        }
+        .user-info-box h2{
+            margin-top: 0;
+        }
+        .user-info-box p {
+            margin: 10px 0;
+        }
+        .academic-info-container{
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .academic-info-box{
+            width: 50%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: center;
+            
+        }
+        .academic-info-box h2{
+            margin-top: 0;
+        }
+        .academic-info-box p{
+            margin: 10px 0;
+        }
+        
+        .edit_form_popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            border: 3px solid #f1f1f1;
+        }
+        .edit_form_container {
+            max-width: 300px;
+            padding: 10px;
+            background-color: white;
+        }
+        .edit_form_container input[type=text]{
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0 22px 0;
+            border: none;
+            background: #f1f1f1;
+        }
+        .edit_form_container input[type=text]:focus{
+            background-color: #ddd;
+            outline: none;
+        }
+        .user-actions-container{
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .user-actions-box{
+            width: 50%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: center;    
+        }
+        .user-actions-box h2{
+            margin-top: 0;
+        }
+        .user-actions-box p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="topnav">
+        <a class="active" href="/profile">
+            Hello {{ first_name }} {{ last_name[0] }}.</a>
+        </a>
+        {% if access == 0 %}
+            <a class="centered" href="/students">List of Students</a>
+            <a class="centered" href="/advisors">List of Advisors</a>
+            <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+            <a class="centered" href="/assign">Assign Users</a>
+            <a class="centered" href="/create">Create Accounts</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+        {% elif access == 1 %}
+            <a class="centered" href="/students">List of Students</a>
+            <a class="centered" href="/advisors">List of Advisors</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+        {% elif access == 2 %}
+            <a class="centered" href="{{ url_for('list_of_advisees')}}">List of Advisees'</a>
+            <a class="centered" href="{{ url_for('review_forms') }}">Review Forms</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+        {% elif access == 3 %}
+            <a class="centered" href="{{ url_for('taken_course_and_requirements')}}">Taken Courses and Requirements</a>
+            <a class="centered" href="{{ url_for('course_catalog')}}">Course Catalog</a>
+            <a class="centered" href="{{ url_for('forms')}}">Submit Forms</a>
+        {% else %}
+
+        {% endif %}
+            <a class="centered" href="{{ url_for('profile')}}">Profile</a>
+    </div>
+    <div class="title">
+        <h1>Assign Users</h1>
+    </div>
+
+    {% for user in information %}
+    <div class="user-info-container">
+        <div class="user-info-box">
+            <div>
+                <h2>User Information:</h2>
+                <p><b>First Name:</b> {{ user['first_name'] }}</p>
+                <p><b>Last Name:</b> {{ user['last_name'] }}</p>
+                {% if user['type'] == 0 %}
+                    <p><b>Type:</b> Admin </p>
+                {% elif user['type'] == 1 %}
+                    <p><b>Type:</b> Secretary </p>
+                {% elif user['type'] == 2 %}
+                    <p><b>Type:</b> Advisor </p>
+                {% elif user['type'] == 3 %}
+                    <p><b>Type:</b> Student </p>
+                {% elif user['type'] == 4 %}
+                    <p><b>Type:</b> Alumni </p>
+                {% elif user['type'] == 5 %}
+                    <p class = "red"><b>Type:</b> No Role </p>
+                {% endif %}
+                
+                <p><b>Email:</b> {{ user['email'] }}</p>
+                <p><b>Address:</b> {{ user['address'] }}</p>
+                <p><b>User ID:</b> {{ user['user_id'] }}</p>
+                <a href = "/studentprofile/{{user['user_id']}}"><b>View Profile</b></a>
+                {% if user['user_id'] == person %}
+                    {% if error == "success!" %}
+                        <p class = "green"> change made successfully </p>
+                    {% else %}
+                        <p class = "red"> {{error}} </p>
+                    {% endif %}
+                {% endif %}
+                <p></p>
+            </div>
+            <div>
+                {% set id = user['user_id'] %}
+                <!-- https://www.w3schools.com/jsref/event_onchange.asp 
+                https://www.linkedin.com/advice/3/how-can-you-control-visibility-editability-html-form-fields#:~:text=One%20way%20to%20hide%20a,when%20the%20form%20is%20submitted. 
+                -->
+                <form id = "{{id}}" method='POST' action="/assign" onchange="StudentOptions('{{id}}')">
+                    <label for="role"><b>Select Access:</b></label>
+                    <select id="{{id}}_role" name="role">
+                        <option value="0"> Admin </option>
+                        <option value="1"> Secretary </option>
+                        <option value="2"> Advisor </option>
+                        <option value="3"> Student </option>
+                        <option value="4"> Alumni </option>
+                        <option value="5"> No Role </option>
+                    </select>
+                    
+                    <div id="{{id}}_program" style="display: none;">
+                        <label for="program"><b>Program:</b></label>
+                        <select name="program">
+                            <option value="MS"> MS </option>
+                            <option value="PhD"> PhD </option>
+                        </select>
+                        <label for="major"><b>Major:</b></label>
+                        <select name="major">
+                            <option value="CSCI">CSCI</option>
+                        </select>
+                    </div>
+            
+                    <input type="hidden" name="user_id" value="{{ user['user_id'] }}">
+                    <input type="hidden" name="prev_role" value="{{ user['type'] }}">
+                    <input type="submit" value="Change Role">
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    
+</body>
+
+<script>    
+    function StudentOptions(id){
+        var role = document.getElementById(id + "_role");
+        var program = document.getElementById(id + "_program");
+        if (role.value == "3") {
+            program.style.display = "";
+        } else {
+                program.style.display = "none";
+        }
+    }
+</script>
